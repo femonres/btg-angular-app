@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Suscribirse al fondo: {{ data.fundName }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="subscriptionForm">
+    
+    <mat-form-field appearance="fill">
+      <mat-label>Monto a invertir</mat-label>
+      <input matInput formControlName="amount" type="number" />
+      <!--
+      <mat-error *ngIf="subscriptionForm.get('amount').hasError('required')">
+        El monto es requerido.
+      </mat-error>
+      <mat-error *ngIf="subscriptionForm.get('amount').hasError('min')">
+        El monto debe ser mayor o igual a {{ data.minAmount }}.
+      </mat-error> -->
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-button (click)="onConfirm()" [disabled]="!subscriptionForm.valid">Suscribirse</button>
+</mat-dialog-actions>
