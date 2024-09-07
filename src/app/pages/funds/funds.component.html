@@ -1,48 +1,13 @@
 <div class="funds-container">
     <h2>Fondos de Inversion</h2>
-    <div *ngIf="funds$ | async as funds; else noData">
+    <div *ngIf="funds.length > 0; else noData">
+
+        <app-table-molecule
+            [columns]="displayedColumns"
+            [data]="funds"
+            [buttonActions]="actionButtons"
+            (actionClicked)="onAction($event)"></app-table-molecule>
         
-        <table mat-table [dataSource]="funds" class="mat-elevation-z8">
-  
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef> Nombre del fondo </th>
-              <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-            </ng-container>
-          
-            <ng-container matColumnDef="category">
-              <th mat-header-cell *matHeaderCellDef> Tipo de acción </th>
-              <td mat-cell *matCellDef="let element"> {{element.category}} </td>
-            </ng-container>
-            
-            <ng-container matColumnDef="minAmount">
-                <th mat-header-cell *matHeaderCellDef> Monto minimo a invertir </th>
-                <td mat-cell *matCellDef="let element"> {{element.minAmount | currency : 'USD' : 'symbol' : '1.0-0' }} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Acciones </th>
-                <td mat-cell *matCellDef="let element">
-                    <button
-                        mat-mini-fab
-                        color="primary"
-                        matTooltip="Suscribirse al fondo"
-                        (click)="onSubscribe(element)">
-                        <mat-icon>add</mat-icon>
-                    </button>
-                    <button
-                        mat-mini-fab
-                        color="warn"
-                        matTooltip="Cancelar la suscripción al fondo"
-                        (click)="onUnsubscribe(element)">
-                        <mat-icon>remove</mat-icon>
-                    </button>
-                </td>
-            </ng-container>
-          
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-
     </div>
     
     <ng-template #noData>

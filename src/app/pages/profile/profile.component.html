@@ -1,1 +1,138 @@
-<p>profile works!</p>
+<div class="profile-page mat-typography">
+  <mat-grid-list
+    cols="2"
+    rowHeight="1.2:1"
+    gutterSize="20px"
+    class="profile-grid"
+    *ngIf="currentUser"
+    [ngClass]="{ 'responsive-grid': isSmallScreen }">
+
+    <!-- User Information Section -->
+    <mat-grid-tile [colspan]="isSmallScreen ? 2 : 1">
+      <section class="user-info-section">
+        <h2>Perfil</h2>
+        <mat-divider></mat-divider>
+
+        <!-- Display User Info -->
+        <div class="user-info" *ngIf="!isEditing">
+          <p><strong>Nombre:</strong> {{ currentUser.name }}</p>
+          <p><strong>Correo:</strong> {{ currentUser.email }}</p>
+          <p><strong>Teléfono:</strong> {{ currentUser.phone }}</p>
+
+          <mat-divider></mat-divider>
+
+          <h3>Medio de notificación preferido</h3>
+          <div class="notifications">
+            <p><strong>{{ currentUser.notification }}</strong></p>
+          </div>
+
+          <div class="profile-actions">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="toggleEditProfile()">
+              Update Profile
+            </button>
+            <button mat-raised-button color="accent" (click)="onResetBalance()">
+              Reset Balance
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulario de actualización del perfil -->
+        <form
+          *ngIf="isEditing"
+          [formGroup]="userProfileForm"
+          (ngSubmit)="onUpdateProfile(currentUser.id)">
+          <!-- Nombre -->
+          <p>
+            <mat-form-field>
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="name" />
+              <mat-error
+                *ngIf="userProfileForm.get('name')?.hasError('required')">
+                El Nombre es requerido
+              </mat-error>
+            </mat-form-field>
+          </p>
+          <p>
+            <mat-form-field>
+              <mat-label>Correo</mat-label>
+              <input matInput formControlName="email" />
+              <mat-error
+                *ngIf="userProfileForm.get('email')?.hasError('required')">
+                El Correo es requerido
+              </mat-error>
+              <mat-error
+                *ngIf="userProfileForm.get('email')?.hasError('email')">
+                El formato del correo no es valido
+              </mat-error>
+            </mat-form-field>
+          </p>
+
+          <p>
+            <mat-form-field>
+              <mat-label>Teléfono</mat-label>
+              <input matInput formControlName="phone" />
+              <mat-error
+                *ngIf="userProfileForm.get('phone')?.hasError('required')">
+                El teléfono es requerido
+              </mat-error>
+            </mat-form-field>
+          </p>
+
+          <p>
+            <mat-form-field>
+              <mat-label>Forma de Notificación</mat-label>
+              <mat-select formControlName="notification">
+                <mat-option value="EMAIL">Email</mat-option>
+                <mat-option value="PHONE">SMS</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </p>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="userProfileForm.invalid">
+            Save Changes
+          </button>
+          <button mat-raised-button color="warn" (click)="toggleEditProfile()">
+            Cancel
+          </button>
+        </form>
+      </section>
+    </mat-grid-tile>
+
+    <!-- Active Subscriptions Section -->
+    <mat-grid-tile [colspan]="isSmallScreen ? 2 : 1">
+      <section class="subscriptions-section">
+        <h2>Active Subscriptions</h2>
+        <mat-divider></mat-divider>
+
+        <div *ngIf="currentUser.subscriptions.length > 0; else noSubscriptions">
+          <mat-list>
+            <mat-list-item
+              *ngFor="let subscription of currentUser.subscriptions">
+              <div mat-line>{{ subscription.fundName }}</div>
+              <div mat-line>
+                Subscribed on: {{ subscription.timestamp | date : "shortDate" }}
+              </div>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="onCancelSubscription(subscription.fundId, subscription.fundName)">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </div>
+        <ng-template #noSubscriptions>
+          <p>No active subscriptions.</p>
+        </ng-template>
+      </section>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>

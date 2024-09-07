@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { ActionsSubject, Store } from '@ngrx/store';
 import { Fund } from '../../models/fund';
 import {
+  actionToFundFailure,
+  actionToFundSuccess,
   loadFunds,
   subscribeToFund,
   unsubscribeFromFund,
@@ -10,6 +11,12 @@ import {
 import { selectFunds } from '../../store/fund/fund.selector';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalMoleculeComponent } from 'src/app/components/molecules/modal-molecule/modal-molecule.component';
+import { ColumnConfig } from 'src/app/components/molecules/table-molecule/table-molecule.component';
+import { User } from 'src/app/models/user';
+import { selectUser } from 'src/app/store/user/user.selector';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { filter } from 'rxjs';
+import { loadUser } from 'src/app/store/user/user.actions';
 
 @Component({
   selector: 'app-funds',
@@ -17,69 +24,71 @@ import { ModalMoleculeComponent } from 'src/app/components/molecules/modal-molec
   styleUrls: ['./funds.component.sass'],
 })
 export class FundsComponent implements OnInit {
-  funds$!: Observable<Fund[]>;
+  currentUser!: User;
+  funds: Fund[] = [];
 
-  constructor(private store: Store, private dialog: MatDialog) {
-    this.funds$ = this.store.select(selectFunds);
+  constructor(private store: Store, private dialog: MatDialog, private snackBar: MatSnackBar, private actionsSubject: ActionsSubject) {
+    this.store.select(selectUser).subscribe(user => this.currentUser = user!);
+    this.store.select(selectFunds).subscribe(funds => this.funds = funds);
   }
 
   ngOnInit(): void {
     this.store.dispatch(loadFunds());
+
+    // Escuchar las acciones de éxito
+    this.actionsSubject.pipe(
+      filter((action) => action.type === actionToFundSuccess.type)
+    ).subscribe((action: any) => {
+      this.snackBar.open(action.message, 'Cerrar', { duration: 5000, panelClass: 'success-snackbar', horizontalPosition: 'end', verticalPosition: 'bottom' });
+      this.store.dispatch(loadUser({userId: this.currentUser.id}));
+    });
+
+    // Escuchar las acciones de error
+    this.actionsSubject.pipe(
+      filter((action) => action.type === actionToFundFailure.type)
+    ).subscribe((action: any) => {
+      this.snackBar.open(action.error, 'Cerrar', { duration: 5000, panelClass: 'error-snackbar', horizontalPosition: 'end', verticalPosition: 'bottom' });
+    });
   }
 
-  get displayedColumns(): string[] {
-    return ['name', 'category', 'minAmount', 'actions'];
+  get displayedColumns(): Map<string, ColumnConfig> {
+    return new Map<string, ColumnConfig>([
+      ['name', { displayName:'Nombre del fondo' }],
+      ['category', { displayName: 'Categoría' }],
+      ['minAmount', { displayName: 'Monto mínimo de inversion', pipe: 'currency' }]
+    ]);
+  }
+
+  get actionButtons() {
+    return [
+      { id: 1, icon: 'add', action: 'subscribe', tooltip: 'Suscribirse al fondo' },
+      { id: 2, icon: 'remove', color: 'warn', action: 'unsubscribe', tooltip: 'Cancelar la suscripción' },
+    ];
   }
 
   onAction(event: { action: string; element: Fund }): void {
-    const fund = event.element;
-
     if (event.action === 'subscribe') {
-      this.dialog.open(ModalMoleculeComponent, {
-        data: { fundName: fund.name, minAmount: fund.minAmount },
-      });
+      this.onSubscribe(event.element);
     } else if (event.action === 'unsubscribe') {
-      // Lógica para cancelar la suscripción
+      this.onUnsubscribe(event.element);
     }
   } 
 
   onSubscribe(fund: Fund): void {
     const dialogRef = this.dialog.open(ModalMoleculeComponent, {
-      width: '300px',
       data: { fundName: fund.name, minAmount: fund.minAmount },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.store.dispatch(
-          subscribeToFund({ fundId: fund.id, amount: result.amount })
-        );
+        this.store.dispatch(subscribeToFund({ fundId: fund.id, userId: this.currentUser.id, amount: result.amount }));
       }
     });
   }
 
   onUnsubscribe(fund: Fund): void {
-    console.log('onUnsubscribe', fund);
     if (window.confirm("Está seguro de que desea cancelar la suscripcion con el fondo " + fund.name)) {
-      this.store.dispatch(unsubscribeFromFund({ fundId: fund.id }));
-      // Cargaar balance del usuario
+      this.store.dispatch(unsubscribeFromFund({ fundId: fund.id, userId: this.currentUser.id }));
     }
-  }
-
-  get actionButtons() {
-    return [
-      {
-        icon: 'add',
-        color: 'primary',
-        tooltip: 'Suscribirse al fondo',
-        action: 'subscribe',
-      },
-      {
-        icon: 'remove',
-        color: 'warn',
-        tooltip: 'Cancelar la suscripción',
-        action: 'unsubscribe',
-      },
-    ];
   }
 }

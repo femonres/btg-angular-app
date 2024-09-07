@@ -20,7 +20,7 @@ export class UserService {
     return this.http.put<User>(`${this.baseUrl}/users/${userId}`, user);
   }
 
-  resetUserBalance(userId: number): Observable<void> {
+  resetBalance(userId: number): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/users/${userId}/reset`, {});
   }
 }

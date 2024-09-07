@@ -13,6 +13,7 @@ export interface Subscription {
   fundId: number;
   fundName: string;
   amount: number;
+  timestamp: Date;
 }
 
 export enum NotificationPreference {

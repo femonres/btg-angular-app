@@ -1,26 +1,28 @@
 <table mat-table [dataSource]="data" class="mat-elevation-z8">
-    <ng-container *ngFor="let column of columns" [matColumnDef]="column">
-      <th mat-header-cell *matHeaderCellDef>{{ column | titlecase }}</th>
-      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-    </ng-container>
-  <!--
-    <ng-container *ngIf="buttons" matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let element">
-        <ng-container *ngFor="let button of buttons">
-          <button
-            mat-mini-fab
-            [color]="button.color"
-            [matTooltip]="button.tooltip"
-            (click)="onButtonClick(button.action, element)">
-            <mat-icon *ngIf="button.icon">{{ button.icon }}</mat-icon>
-            {{ button.label }}
-          </button>
-        </ng-container>
-      </td>
-    </ng-container>
-  -->
-    <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-  
+  <ng-container *ngFor="let column of columnKeys" [matColumnDef]="column">
+    <th mat-header-cell *matHeaderCellDef>
+      {{ columns.get(column)?.displayName }}
+    </th>
+    <td mat-cell *matCellDef="let element">
+      {{ applyPipe(element[column], columns.get(column)?.pipe) }}
+    </td>
+  </ng-container>
+
+  <ng-container *ngIf="buttonActions" matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+    <td mat-cell *matCellDef="let element">
+      <button
+        *ngFor="let buttonAction of buttonActions; trackBy: trackByIndex"
+        mat-mini-fab
+        [color]="buttonAction.color || 'primary'"
+        [matTooltip]="buttonAction.tooltip || ''"
+        (click)="onButtonClick(buttonAction.action, element)">
+        <mat-icon *ngIf="buttonAction.icon">{{ buttonAction.icon }}</mat-icon>
+        {{ buttonAction.label || "" }}
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

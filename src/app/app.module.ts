@@ -6,13 +6,17 @@ import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
@@ -35,6 +39,7 @@ import { ModalMoleculeComponent } from './components/molecules/modal-molecule/mo
 import { TableMoleculeComponent } from './components/molecules/table-molecule/table-molecule.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CamelCaseInterceptor } from './shared/interceptors/camel-case.interceptor';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -57,8 +62,12 @@ import { CamelCaseInterceptor } from './shared/interceptors/camel-case.intercept
     MatButtonModule,
     MatIconModule,
     MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatTooltipModule,
+    MatSnackBarModule,
+    MatGridListModule,
     MatCardModule,
     MatListModule,
     MatTableModule,
@@ -74,6 +83,7 @@ import { CamelCaseInterceptor } from './shared/interceptors/camel-case.intercept
     StoreRouterConnectingModule.forRoot()
   ],
   providers: [
+    CurrencyPipe, DatePipe,
     {provide: HTTP_INTERCEPTORS, useClass: CamelCaseInterceptor, multi: true}
   ],
   bootstrap: [AppComponent]

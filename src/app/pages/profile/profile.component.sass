@@ -1,0 +1,35 @@
+.profile-page
+  padding: 20px
+
+.profile-grid
+  display: flex
+
+.user-info-section, .subscriptions-section
+  min-height: 270px
+  min-width: 460px
+  box-sizing: border-box
+  padding: 20px
+  background: #fff
+  border-radius: 8px
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1)
+
+@media (max-width: 768px)
+  .user-info-section, .subscriptions-section
+    min-height: 270px
+    padding: 10px
+
+.user-info p, .notifications
+  margin: 10px 0
+
+.profile-actions
+  margin-top: 20px
+
+  button
+    margin-right: 10px
+
+.responsive-grid mat-grid-tile
+  width: 100%
+
+@media (max-width: 768px)
+  .responsive-grid
+    display: block
